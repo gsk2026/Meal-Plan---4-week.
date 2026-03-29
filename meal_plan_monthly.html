@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>4-Week Meal Plan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:#f7f5f0;min-height:100vh;padding-bottom:40px}
+.header{background:linear-gradient(135deg,#1a3c2e 0%,#2d6a4f 60%,#52b788 100%);padding:20px 16px 0;position:sticky;top:0;z-index:10}
+.h-sub{font-size:10px;letter-spacing:3px;color:#95d5b2;text-transform:uppercase;margin-bottom:3px}
+.h-title{font-size:21px;font-weight:700;color:#fff}
+.h-macros{font-size:11px;color:#b7e4c7;margin-top:3px;margin-bottom:10px}
+.week-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:12px}
+.week-tabs::-webkit-scrollbar{display:none}
+.wtab{flex-shrink:0;padding:8px 14px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s}
+.wtab.active{background:#fff;color:#1a3c2e}
+.wtab.inactive{background:rgba(255,255,255,.15);color:#d8f3dc}
+.main-tabs{display:flex;gap:6px;margin:12px 14px 0}
+.mtab{flex:1;padding:8px 4px;border-radius:20px;border:2px solid transparent;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;background:#fff}
+.mtab.active{border-color:#2d6a4f;color:#1a3c2e;background:#fff}
+.mtab.inactive{border-color:#e0ddd6;color:#888;background:#f7f5f0}
+.content{display:none;padding:14px}
+.content.active{display:block}
+.week-hero{border-radius:18px;padding:16px;margin-bottom:14px;color:#fff}
+.week-hero h2{font-size:20px;font-weight:700}
+.week-hero .theme{font-size:12px;opacity:.85;margin-top:4px}
+.week-hero .note{background:rgba(255,255,255,.15);border-radius:10px;padding:8px 10px;margin-top:10px;font-size:11px;line-height:1.5}
+.section-title{font-size:13px;font-weight:700;color:#2d6a4f;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.prep-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;border:1px solid #e8e4df;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.prep-card h3{font-size:14px;font-weight:700;color:#1a3c2e;margin-bottom:4px}
+.prep-card .desc{font-size:12px;color:#555;line-height:1.6;margin-bottom:10px}
+.prep-steps{background:#f7faf8;border-radius:10px;padding:10px 12px}
+.prep-steps .step-title{font-size:11px;font-weight:700;color:#2d6a4f;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.step{display:flex;gap:8px;font-size:12px;color:#444;margin-bottom:5px;line-height:1.5}
+.step-num{background:#2d6a4f;color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.macro-row{display:flex;gap:6px;margin-top:10px}
+.macro-chip{flex:1;background:#f0f9f4;border-radius:8px;padding:6px;text-align:center}
+.macro-chip .mlabel{font-size:9px;color:#888}
+.macro-chip .mval{font-size:13px;font-weight:700;margin-top:1px}
+.day-card{background:#fff;border-radius:14px;margin-bottom:8px;overflow:hidden;border:1px solid #ede9e3;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.day-header-row{display:flex;align-items:center;padding:12px 14px;gap:10px;cursor:pointer}
+.day-emoji{font-size:20px;flex-shrink:0}
+.day-info{flex:1}
+.day-name{font-size:13px;font-weight:700;color:#1a3c2e}
+.day-sub{font-size:11px;color:#888;margin-top:1px}
+.day-kcal{font-size:15px;font-weight:700;color:#2d6a4f;flex-shrink:0}
+.chev{font-size:11px;color:#ccc;transition:transform .2s;margin-left:4px}
+.chev.open{transform:rotate(180deg)}
+.day-detail{display:none;padding:0 14px 12px;border-top:1px solid #f5f0eb}
+.day-detail.open{display:block}
+.meal-row{padding:8px 0;border-bottom:1px solid #f0ede8}
+.meal-row:last-child{border-bottom:none}
+.meal-type-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#52b788;margin-bottom:2px}
+.meal-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.meal-ing{font-size:11px;color:#888;margin-top:2px;line-height:1.5}
+.meal-macros{display:flex;gap:8px;margin-top:5px}
+.mm{font-size:11px;color:#666;background:#f5f5f5;padding:2px 7px;border-radius:10px}
+.fibre-badge{background:#e8f5e9;color:#2d6a4f;padding:2px 7px;border-radius:10px;font-size:11px}
+.prep-timeline{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid #d4edda}
+.timeline-title{font-size:13px;font-weight:700;color:#1a3c2e;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.time-badge{background:#2d6a4f;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px}
+.tl-row{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.tl-time{background:#f0f9f4;border-radius:8px;padding:4px 8px;font-size:11px;font-weight:700;color:#2d6a4f;flex-shrink:0;min-width:56px;text-align:center}
+.tl-text{font-size:12px;color:#444;line-height:1.5}
+/* Grocery */
+.g-summary{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #e0ddd6}
+.g-title{font-size:15px;font-weight:700;color:#1a3c2e}
+.g-hint{font-size:11px;color:#888;margin-top:2px}
+.prog-row{display:flex;justify-content:space-between;align-items:center}
+.prog-num{font-size:17px;font-weight:700;color:#2d6a4f}
+.bar-bg{height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-top:8px}
+.bar-fill{height:100%;border-radius:3px;background:#52b788;transition:width .3s}
+.cat-label{font-size:12px;font-weight:700;color:#2d6a4f;margin:0 0 6px;padding-left:2px}
+.cat-list{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:14px}
+.g-item{display:flex;align-items:center;padding:11px 13px;gap:10px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.05)}
+.g-item:last-child{border-bottom:none}
+.cb{width:22px;height:22px;border-radius:6px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;color:#fff;transition:all .2s}
+.cb.checked{background:#52b788;border-color:#52b788}
+.i-name{flex:1;font-size:13px;font-weight:500;color:#1a1a1a}
+.i-name.checked{text-decoration:line-through;color:#bbb}
+.i-qty{font-size:11px;color:#999;margin-top:1px}
+.i-cost{font-size:12px;font-weight:600;color:#2d6a4f;flex-shrink:0}
+.total-box{background:#1a3c2e;border-radius:16px;padding:16px 20px;text-align:center;margin-bottom:8px}
+.total-sub{font-size:11px;color:#95d5b2;letter-spacing:2px;text-transform:uppercase}
+.total-amt{font-size:26px;font-weight:700;color:#fff;margin:4px 0}
+.total-note{font-size:11px;color:#b7e4c7}
+.info-pill{background:#e8f5e9;border-radius:12px;padding:10px 14px;font-size:12px;color:#2d6a4f;line-height:1.6;margin-bottom:10px;border:1px solid #a5d6a7}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="h-sub">Aldi Melbourne · Dairy-Free · 60-Min Sunday Prep</div>
+  <div class="h-title">4-Week Meal Plan 🗓️</div>
+  <div class="h-macros">2,000 kcal · 262g carbs · 55g fat · 160g protein · High fibre</div>
+  <div class="week-tabs" id="weekTabs"></div>
+</div>
+
+<div style="margin:12px 14px 0;display:flex;gap:6px" id="mainTabs">
+  <button class="mtab active" onclick="switchMain('overview',this)">📋 Overview</button>
+  <button class="mtab inactive" onclick="switchMain('days',this)">📅 Daily Plan</button>
+  <button class="mtab inactive" onclick="switchMain('prep',this)">⏱️ Prep Guide</button>
+  <button class="mtab inactive" onclick="switchMain('grocery',this)">🛒 Groceries</button>
+</div>
+
+<div id="tab-overview" class="content active"></div>
+<div id="tab-days" class="content"></div>
+<div id="tab-prep" class="content"></div>
+<div id="tab-grocery" class="content"></div>
+
+<script>
+const weeks = [
+  {
+    week:1, label:"Week 1", emoji:"💪",
+    theme:"Lunch: Beef Bowl  |  Dinner: Chicken",
+    colors:["#1a3c2e","#2d6a4f"],
+    protein_note:"Lean beef mince for lunches, chicken thighs for dinners — both batch-cooked in under 60 min.",
+    lunch_protein:"Lean Beef", dinner_protein:"Chicken Thigh",
+    lunch:{
+      name:"Spiced Beef & Rice Bowl",
+      desc:"Seasoned lean beef mince with jasmine rice, roasted capsicum and zucchini, drizzled with soy-ginger sauce. High protein, high fibre — batch makes 5 serves.",
+      macros:{kcal:530,carbs:55,fat:14,prot:48,fibre:6},
+      ing:"500g lean beef mince, 2 cups jasmine rice, 1 capsicum, 1 zucchini, soy sauce, garlic, ginger powder, olive oil"
+    },
+    dinner:{
+      name:"Herb Baked Chicken Thigh & Roast Veg",
+      desc:"Boneless chicken thighs baked with sweet potato, broccoli and carrot with olive oil and mixed herbs. Batch makes 5 serves.",
+      macros:{kcal:510,carbs:38,fat:16,prot:50,fibre:8},
+      ing:"1kg chicken thighs (boneless, skin off), 500g sweet potato, 2 heads broccoli, 2 carrots, olive oil, mixed herbs, garlic powder"
+    },
+    breakfasts:[
+      {day:"Mon/Wed/Fri",name:"Protein Overnight Oats",ing:"Oats, almond milk, protein powder, chia seeds, frozen berries",kcal:400,carbs:52,fat:8,prot:30,fibre:7,mins:5},
+      {day:"Tue/Thu",name:"Scrambled Eggs on Sourdough",ing:"3 eggs, 2 slices sourdough, spinach, cherry tomatoes",kcal:400,carbs:34,fat:16,prot:28,fibre:4,mins:8},
+      {day:"Sat/Sun",name:"Banana Peanut Butter Smoothie",ing:"1 banana, 1 tbsp peanut butter, almond milk, oats, protein powder",kcal:410,carbs:50,fat:10,prot:28,fibre:5,mins:3},
+    ],
+    snack:{name:"Apple + Raw Almonds",ing:"1 apple, 30g raw almonds",kcal:210,carbs:22,fat:11,prot:5,fibre:4},
+    prepTimeline:[
+      {time:"0–10 min","task":"Cook jasmine rice (start rice cooker or pot). Dice capsicum & zucchini."},
+      {time:"10–20 min","task":"Brown beef mince in pan with garlic, ginger, soy sauce. Set aside."},
+      {time:"20–35 min","task":"Dice sweet potato, chop broccoli & carrots. Toss chicken thighs in herbs & olive oil. Into oven at 200°C."},
+      {time:"35–50 min","task":"Portion rice + beef into 5 lunch containers. Add roast veg on top."},
+      {time:"50–60 min","task":"Pull chicken & veg from oven. Portion into 5 dinner containers. Label & refrigerate."},
+    ],
+    grocery:[
+      {cat:"🥩 Protein",color:"#fde8e8",border:"#f5a0a0",items:[
+        ["Lean beef mince","500g","~$6.00"],["Chicken thighs (boneless, skin off)","1 kg","~$9.00"],
+        ["Eggs (free range)","12-pack","~$5.00"],["Plant/whey protein powder","(if needed)","~$25–35"],
+      ]},
+      {cat:"🌾 Carbs & Grains",color:"#fef9e7",border:"#f5d97f",items:[
+        ["Jasmine rice","1 kg bag","~$3.00"],["Rolled oats","1 kg bag","~$2.50"],
+        ["Sourdough bread","1 loaf","~$4.00"],["Chia seeds","200g bag","~$4.00"],
+      ]},
+      {cat:"🥦 Vegetables & Fruit",color:"#e8f5e9",border:"#81c784",items:[
+        ["Sweet potato","1 kg","~$3.00"],["Broccoli","2 heads","~$3.00"],
+        ["Carrots","500g bag","~$2.00"],["Capsicum (red)","2","~$3.00"],
+        ["Zucchini","2 medium","~$2.00"],["Baby spinach (bag)","120g","~$2.50"],
+        ["Cherry tomatoes","250g punnet","~$3.00"],["Bananas","6","~$3.00"],
+        ["Apples","5","~$3.50"],["Frozen mixed berries","500g bag","~$5.00"],
+      ]},
+      {cat:"🫙 Pantry",color:"#e3f2fd",border:"#90caf9",items:[
+        ["Almond milk (unsweetened)","2 × 1L","~$5.00"],["Olive oil","500ml","~$5.00"],
+        ["Soy sauce","250ml","~$2.50"],["Almond butter or Peanut butter","1 jar","~$4.50"],
+        ["Raw almonds","150g bag","~$4.00"],["Mixed dried herbs","1 jar","~$2.00"],
+        ["Garlic (bulb or powder)","1","~$1.50"],["Ginger powder","small jar","~$2.00"],
+      ]},
+    ],
+    totalCost:"~$105–$120",
+  },
+  {
+    week:2, label:"Week 2", emoji:"🔥",
+    theme:"Lunch: Chicken  |  Dinner: Salmon",
+    colors:["#1b4332","#40916c"],
+    protein_note:"Chicken breast for lunches, salmon fillets for dinners. Both easy to batch — salmon bakes in 15 min.",
+    lunch_protein:"Chicken Breast", dinner_protein:"Salmon Fillet",
+    lunch:{
+      name:"Chicken & Quinoa Veggie Bowl",
+      desc:"Sliced baked chicken breast over fluffy quinoa with roasted zucchini, spinach and a lemon-tahini drizzle. 5 serves batch-prepped.",
+      macros:{kcal:520,carbs:48,fat:12,prot:52,fibre:7},
+      ing:"700g chicken breast, 1.5 cups quinoa, 2 zucchini, baby spinach, lemon, tahini (or almond butter), olive oil, garlic"
+    },
+    dinner:{
+      name:"Baked Salmon with Brown Rice & Greens",
+      desc:"Herb-crusted salmon fillet over brown rice with steamed broccoli and green beans. Simple, fast and macro-perfect.",
+      macros:{kcal:530,carbs:42,fat:20,prot:48,fibre:8},
+      ing:"5 salmon fillets (~150g each), 1.5 cups brown rice, 2 heads broccoli, 250g green beans, olive oil, lemon, mixed herbs"
+    },
+    breakfasts:[
+      {day:"Mon/Wed/Fri",name:"Protein Overnight Oats",ing:"Oats, almond milk, protein powder, chia seeds, sliced banana",kcal:400,carbs:52,fat:8,prot:30,fibre:7,mins:5},
+      {day:"Tue/Thu",name:"Avocado & Egg Toast",ing:"2 eggs (poached/fried), 2 slices sourdough, ½ avocado, lemon, chilli flakes",kcal:410,carbs:32,fat:20,prot:24,fibre:6,mins:8},
+      {day:"Sat/Sun",name:"Mango & Berry Smoothie Bowl",ing:"Frozen mango, frozen berries, almond milk, oats, seeds on top",kcal:390,carbs:60,fat:6,prot:14,fibre:7,mins:5},
+    ],
+    snack:{name:"Rice Cakes + Almond Butter",ing:"3 rice cakes, 1 tbsp almond butter, banana slices",kcal:220,carbs:28,fat:8,prot:5,fibre:3},
+    prepTimeline:[
+      {time:"0–10 min","task":"Start brown rice (takes ~25 min). Prep chicken breast — coat in olive oil, garlic, herbs."},
+      {time:"10–25 min","task":"Bake chicken at 200°C. Cook quinoa in pot (~15 min). Chop zucchini, broccoli, green beans."},
+      {time:"25–40 min","task":"Roast zucchini in oven alongside chicken. Steam broccoli and green beans. Pull chicken when done."},
+      {time:"40–50 min","task":"Slice chicken. Portion quinoa + chicken + spinach + zucchini into 5 lunch containers."},
+      {time:"50–60 min","task":"Lay salmon on lined tray, season. Bake 12–15 min. Portion rice + salmon + greens into 5 dinner containers."},
+    ],
+    grocery:[
+      {cat:"🥩 Protein",color:"#fde8e8",border:"#f5a0a0",items:[
+        ["Chicken breast (skinless)","700g","~$7.00"],["Salmon fillets","5 × ~150g","~$14.00"],
+        ["Eggs (free range)","6-pack","~$3.50"],["Plant/whey protein powder","(if needed)","~$0"],
+      ]},
+      {cat:"🌾 Carbs & Grains",color:"#fef9e7",border:"#f5d97f",items:[
+        ["Brown rice","500g bag","~$2.00"],["Quinoa","500g bag","~$4.00"],
+        ["Rolled oats","1 kg bag","~$2.50"],["Sourdough bread","1 loaf","~$4.00"],
+        ["Rice cakes","1 pack","~$2.00"],
+      ]},
+      {cat:"🥦 Vegetables & Fruit",color:"#e8f5e9",border:"#81c784",items:[
+        ["Broccoli","2 heads","~$3.00"],["Green beans (fresh or frozen)","250g","~$2.00"],
+        ["Zucchini","2 medium","~$2.00"],["Baby spinach","120g bag","~$2.50"],
+        ["Avocados","2","~$3.50"],["Bananas","5","~$3.00"],
+        ["Frozen mango","500g bag","~$4.50"],["Frozen mixed berries","500g bag","~$5.00"],
+        ["Lemon","3","~$2.00"],
+      ]},
+      {cat:"🫙 Pantry",color:"#e3f2fd",border:"#90caf9",items:[
+        ["Almond milk","2 × 1L","~$5.00"],["Olive oil","(carry over)","—"],
+        ["Almond butter","1 jar","~$5.50"],["Chia seeds","(carry over)","—"],
+        ["Mixed herbs","(carry over)","—"],["Garlic powder","(carry over)","—"],
+        ["Tahini (or almond butter)","small jar","~$4.00"],
+      ]},
+    ],
+    totalCost:"~$95–$110",
+  },
+  {
+    week:3, label:"Week 3", emoji:"⚡",
+    theme:"Lunch: Turkey/Tuna  |  Dinner: Beef",
+    colors:["#582a14","#a0522d"],
+    protein_note:"Canned tuna & turkey mince for quick lunches, lean beef stir-fry for dinners. Most affordable week!",
+    lunch_protein:"Turkey Mince / Tuna", dinner_protein:"Lean Beef",
+    lunch:{
+      name:"Turkey Mince & Lentil Rice Bowl",
+      desc:"Lean turkey mince cooked with red lentils, diced tomatoes and cumin over jasmine rice. Packed with fibre, iron and protein.",
+      macros:{kcal:510,carbs:58,fat:10,prot:46,fibre:10},
+      ing:"500g turkey mince, 200g red lentils, 1 can diced tomatoes, 2 cups jasmine rice, cumin, garlic, olive oil, baby spinach"
+    },
+    dinner:{
+      name:"Beef & Veggie Stir-Fry with Noodles",
+      desc:"Lean beef strips stir-fried with capsicum, broccoli, carrot and egg noodles in a soy-oyster sauce. Big flavour, easy batch.",
+      macros:{kcal:540,carbs:52,fat:16,prot:46,fibre:7},
+      ing:"600g lean beef strips, 2 packs egg noodles, 1 head broccoli, 2 capsicum, 2 carrots, soy sauce, oyster sauce, sesame oil, garlic"
+    },
+    breakfasts:[
+      {day:"Mon/Wed/Fri",name:"Chia Pudding with Berries",ing:"3 tbsp chia seeds, almond milk, protein powder, frozen berries (thawed), honey",kcal:380,carbs:42,fat:10,prot:28,fibre:12,mins:5},
+      {day:"Tue/Thu",name:"3-Egg Omelette & Toast",ing:"3 eggs, spinach, mushrooms, 2 slices sourdough",kcal:400,carbs:34,fat:16,prot:30,fibre:4,mins:8},
+      {day:"Sat/Sun",name:"Rolled Oats with Banana & Seeds",ing:"Rolled oats, almond milk, sliced banana, pumpkin seeds, almond butter",kcal:400,carbs:56,fat:10,prot:14,fibre:6,mins:5},
+    ],
+    snack:{name:"Boiled Eggs & Rice Crackers",ing:"2 hard-boiled eggs (prep Sunday), rice crackers",kcal:210,carbs:16,fat:10,prot:16,fibre:1},
+    prepTimeline:[
+      {time:"0–10 min","task":"Cook jasmine rice. Boil 5 eggs for snacks. Chop broccoli, capsicum, carrots."},
+      {time:"10–25 min","task":"Brown turkey mince in pan with garlic + cumin. Add red lentils, canned tomatoes + 300ml water. Simmer 15 min."},
+      {time:"25–40 min","task":"While lentils simmer, stir-fry beef strips in batches with garlic. Add soy + oyster sauce. Set aside."},
+      {time:"40–50 min","task":"Stir-fry broccoli, capsicum, carrot in same pan. Cook noodles (3 min boiling water). Combine beef + veg + noodles."},
+      {time:"50–60 min","task":"Portion turkey-lentil mix over rice (5 lunches). Portion beef noodles (5 dinners). Refrigerate all + eggs."},
+    ],
+    grocery:[
+      {cat:"🥩 Protein",color:"#fde8e8",border:"#f5a0a0",items:[
+        ["Turkey mince (lean)","500g","~$7.00"],["Lean beef strips","600g","~$10.00"],
+        ["Eggs (free range)","12-pack","~$5.00"],
+      ]},
+      {cat:"🌾 Carbs & Grains",color:"#fef9e7",border:"#f5d97f",items:[
+        ["Jasmine rice","1 kg bag","~$3.00"],["Egg noodles","2 packs (250g each)","~$4.00"],
+        ["Rolled oats","(carry over)","—"],["Sourdough bread","1 loaf","~$4.00"],
+        ["Chia seeds","200g bag","~$4.00"],["Rice crackers","1 pack","~$2.50"],
+      ]},
+      {cat:"🥦 Vegetables & Fruit",color:"#e8f5e9",border:"#81c784",items:[
+        ["Broccoli","1 large head","~$2.50"],["Capsicum (red/yellow)","3","~$4.00"],
+        ["Carrots","500g bag","~$2.00"],["Baby spinach","120g bag","~$2.50"],
+        ["Mushrooms","250g punnet","~$3.00"],["Bananas","5","~$3.00"],
+        ["Frozen mixed berries","500g bag","~$5.00"],
+      ]},
+      {cat:"🫙 Pantry",color:"#e3f2fd",border:"#90caf9",items:[
+        ["Red lentils","500g bag","~$2.00"],["Canned diced tomatoes","1 × 400g can","~$1.50"],
+        ["Soy sauce","(carry over)","—"],["Oyster sauce","250ml","~$3.00"],
+        ["Sesame oil","100ml","~$3.00"],["Cumin (ground)","small jar","~$2.00"],
+        ["Almond milk","2 × 1L","~$5.00"],["Almond butter","(carry over)","—"],
+        ["Pumpkin seeds","100g","~$3.00"],
+      ]},
+    ],
+    totalCost:"~$85–$100",
+  },
+  {
+    week:4, label:"Week 4", emoji:"🎯",
+    theme:"Lunch: Salmon/Tuna  |  Dinner: Chicken",
+    colors:["#1d3557","#457b9d"],
+    protein_note:"Canned tuna & baked salmon for nutrient-dense lunches, baked chicken drumsticks for easy bulk dinners.",
+    lunch_protein:"Salmon / Tuna", dinner_protein:"Chicken Drumstick",
+    lunch:{
+      name:"Tuna, Quinoa & Chickpea Power Bowl",
+      desc:"Canned tuna over quinoa with chickpeas, cucumber, cherry tomatoes and a lemon-olive oil dressing. No cooking required for the protein!",
+      macros:{kcal:500,carbs:50,fat:12,prot:44,fibre:9},
+      ing:"3 cans tuna in springwater, 1 can chickpeas, 1.5 cups quinoa, 2 cucumbers, cherry tomatoes, lemon, olive oil, mixed herbs"
+    },
+    dinner:{
+      name:"Baked Chicken Drumsticks, Sweet Potato & Broccoli",
+      desc:"Juicy drumsticks baked with sweet potato wedges and broccoli. Lowest effort meal of the month — just season and bake!",
+      macros:{kcal:520,carbs:40,fat:16,prot:50,fibre:8},
+      ing:"10 chicken drumsticks (~1.2kg), 600g sweet potato, 2 heads broccoli, olive oil, paprika, garlic powder, mixed herbs"
+    },
+    breakfasts:[
+      {day:"Mon/Wed/Fri",name:"Protein Overnight Oats",ing:"Oats, almond milk, protein powder, chia seeds, frozen berries",kcal:400,carbs:52,fat:8,prot:30,fibre:7,mins:5},
+      {day:"Tue/Thu",name:"Peanut Butter Banana Toast",ing:"2 slices sourdough, 2 tbsp peanut butter, 1 sliced banana, sprinkle of seeds",kcal:420,carbs:52,fat:14,prot:14,fibre:6,mins:4},
+      {day:"Sat/Sun",name:"Smoothie: Spinach, Banana & Oat",ing:"1 banana, handful spinach, oats, almond milk, protein powder, chia seeds",kcal:390,carbs:52,fat:7,prot:28,fibre:7,mins:3},
+    ],
+    snack:{name:"Orange + Mixed Nuts",ing:"1 large orange, 30g mixed nuts",kcal:210,carbs:22,fat:12,prot:5,fibre:5},
+    prepTimeline:[
+      {time:"0–10 min","task":"Preheat oven 200°C. Season drumsticks with paprika, garlic powder, herbs, olive oil. Cut sweet potato into wedges."},
+      {time:"10–25 min","task":"Drumsticks + sweet potato into oven. Cook quinoa on stovetop (~15 min). Drain and rinse chickpeas."},
+      {time:"25–40 min","task":"Chop cucumber, halve cherry tomatoes. Make lemon-olive oil dressing. Chop broccoli into florets."},
+      {time:"40–50 min","task":"Portion quinoa + tuna + chickpeas + veg + dressing into 5 lunch containers. Refrigerate immediately."},
+      {time:"50–60 min","task":"Add broccoli to oven last 15 min. Pull everything out, portion 2 drumsticks + sweet potato + broccoli per dinner container."},
+    ],
+    grocery:[
+      {cat:"🥩 Protein",color:"#fde8e8",border:"#f5a0a0",items:[
+        ["Chicken drumsticks","1.2 kg (~10 pieces)","~$7.00"],["Canned tuna in springwater","3 × 185g cans","~$4.50"],
+        ["Eggs (free range)","6-pack","~$3.50"],
+      ]},
+      {cat:"🌾 Carbs & Grains",color:"#fef9e7",border:"#f5d97f",items:[
+        ["Quinoa","500g bag","~$4.00"],["Rolled oats","(carry over)","—"],
+        ["Sourdough bread","1 loaf","~$4.00"],["Chia seeds","(carry over)","—"],
+        ["Rice cakes","(carry over)","—"],
+      ]},
+      {cat:"🥦 Vegetables & Fruit",color:"#e8f5e9",border:"#81c784",items:[
+        ["Sweet potato","600g","~$2.50"],["Broccoli","2 heads","~$3.00"],
+        ["Cucumber","2","~$2.00"],["Cherry tomatoes","250g punnet","~$3.00"],
+        ["Baby spinach","120g bag","~$2.50"],["Bananas","5","~$3.00"],
+        ["Oranges","5","~$3.00"],["Frozen mixed berries","500g bag","~$5.00"],
+        ["Lemons","3","~$2.00"],
+      ]},
+      {cat:"🫙 Pantry",color:"#e3f2fd",border:"#90caf9",items:[
+        ["Canned chickpeas","1 × 400g can","~$1.50"],["Almond milk","2 × 1L","~$5.00"],
+        ["Peanut butter","1 jar","~$4.50"],["Mixed nuts","200g bag","~$5.00"],
+        ["Paprika (smoked)","small jar","~$2.00"],["Garlic powder","(carry over)","—"],
+        ["Mixed herbs","(carry over)","—"],["Olive oil","(carry over)","—"],
+        ["Pumpkin/sunflower seeds","100g","~$3.00"],
+      ]},
+    ],
+    totalCost:"~$90–$105",
+  },
+];
+
+let currentWeek = 0;
+let currentMain = 'overview';
+const checked = {};
+
+function switchWeek(idx){
+  currentWeek = idx;
+  document.querySelectorAll('.wtab').forEach((b,i)=>{b.className='wtab '+(i===idx?'active':'inactive')});
+  renderAll();
+}
+
+function switchMain(tab, btn){
+  currentMain = tab;
+  document.querySelectorAll('.mtab').forEach(b=>{b.className='mtab inactive'});
+  btn.className='mtab active';
+  document.querySelectorAll('.content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  renderAll();
+}
+
+function renderAll(){
+  renderWeekTabs();
+  if(currentMain==='overview') renderOverview();
+  if(currentMain==='days') renderDays();
+  if(currentMain==='prep') renderPrep();
+  if(currentMain==='grocery') renderGrocery();
+}
+
+function renderWeekTabs(){
+  document.getElementById('weekTabs').innerHTML = weeks.map((w,i)=>`
+    <button class="wtab ${i===currentWeek?'active':'inactive'}" onclick="switchWeek(${i})">${w.emoji} ${w.label}</button>
+  `).join('');
+}
+
+function renderOverview(){
+  const w = weeks[currentWeek];
+  document.getElementById('tab-overview').innerHTML = `
+    <div class="week-hero" style="background:linear-gradient(135deg,${w.colors[0]},${w.colors[1]})">
+      <h2>${w.emoji} ${w.label}</h2>
+      <div class="theme">🍽️ ${w.theme}</div>
+      <div class="note">🥣 Breakfasts are quick daily options (5–10 min max). Lunches & dinners are batch-prepped every Sunday in 60 minutes.<br><br>⚡ ${w.protein_note}</div>
+    </div>
+
+    <div class="info-pill">✅ <strong>2,000 kcal target</strong> — At 75 kg / 5'7" your TDEE is ~2,500 kcal. This 500 kcal deficit targets ~0.5 kg/week fat loss. On 3 workout days, add your protein shake (+120 kcal / 24g protein).</div>
+
+    <div class="section-title">🥗 This Week's Lunch</div>
+    <div class="prep-card">
+      <h3>${w.lunch.name}</h3>
+      <div class="desc">${w.lunch.desc}</div>
+      <div class="desc" style="color:#888;font-size:11px">🧺 ${w.lunch.ing}</div>
+      <div class="macro-row">
+        <div class="macro-chip"><div class="mlabel">Calories</div><div class="mval" style="color:#2d6a4f">${w.lunch.macros.kcal}</div></div>
+        <div class="macro-chip"><div class="mlabel">Carbs</div><div class="mval" style="color:#f4a261">${w.lunch.macros.carbs}g</div></div>
+        <div class="macro-chip"><div class="mlabel">Protein</div><div class="mval" style="color:#52b788">${w.lunch.macros.prot}g</div></div>
+        <div class="macro-chip"><div class="mlabel">Fat</div><div class="mval" style="color:#e76f51">${w.lunch.macros.fat}g</div></div>
+        <div class="macro-chip"><div class="mlabel">🌿 Fibre</div><div class="mval" style="color:#40916c">${w.lunch.macros.fibre}g</div></div>
+      </div>
+    </div>
+
+    <div class="section-title">🍽️ This Week's Dinner</div>
+    <div class="prep-card">
+      <h3>${w.dinner.name}</h3>
+      <div class="desc">${w.dinner.desc}</div>
+      <div class="desc" style="color:#888;font-size:11px">🧺 ${w.dinner.ing}</div>
+      <div class="macro-row">
+        <div class="macro-chip"><div class="mlabel">Calories</div><div class="mval" style="color:#2d6a4f">${w.dinner.macros.kcal}</div></div>
+        <div class="macro-chip"><div class="mlabel">Carbs</div><div class="mval" style="color:#f4a261">${w.dinner.macros.carbs}g</div></div>
+        <div class="macro-chip"><div class="mlabel">Protein</div><div class="mval" style="color:#52b788">${w.dinner.macros.prot}g</div></div>
+        <div class="macro-chip"><div class="mlabel">Fat</div><div class="mval" style="color:#e76f51">${w.dinner.macros.fat}g</div></div>
+        <div class="macro-chip"><div class="mlabel">🌿 Fibre</div><div class="mval" style="color:#40916c">${w.dinner.macros.fibre}g</div></div>
+      </div>
+    </div>
+
+    <div class="section-title">🌅 Breakfast Options This Week</div>
+    ${w.breakfasts.map(b=>`
+      <div class="prep-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <h3 style="font-size:13px">${b.name}</h3>
+          <span style="background:#e8f5e9;color:#2d6a4f;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px">⏱️ ${b.mins} min</span>
+        </div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px">📅 ${b.day}</div>
+        <div class="desc" style="margin-bottom:8px">🧺 ${b.ing}</div>
+        <div class="macro-row">
+          <div class="macro-chip"><div class="mlabel">kcal</div><div class="mval" style="color:#2d6a4f">${b.kcal}</div></div>
+          <div class="macro-chip"><div class="mlabel">Carbs</div><div class="mval" style="color:#f4a261">${b.carbs}g</div></div>
+          <div class="macro-chip"><div class="mlabel">Protein</div><div class="mval" style="color:#52b788">${b.prot}g</div></div>
+          <div class="macro-chip"><div class="mlabel">🌿 Fibre</div><div class="mval" style="color:#40916c">${b.fibre}g</div></div>
+        </div>
+      </div>`).join('')}
+
+    <div class="section-title">🍎 Daily Snack</div>
+    <div class="prep-card">
+      <h3>${w.snack.name}</h3>
+      <div class="desc">🧺 ${w.snack.ing}</div>
+      <div class="macro-row">
+        <div class="macro-chip"><div class="mlabel">kcal</div><div class="mval" style="color:#2d6a4f">${w.snack.kcal}</div></div>
+        <div class="macro-chip"><div class="mlabel">Protein</div><div class="mval" style="color:#52b788">${w.snack.prot}g</div></div>
+        <div class="macro-chip"><div class="mlabel">🌿 Fibre</div><div class="mval" style="color:#40916c">${w.snack.fibre}g</div></div>
+      </div>
+    </div>
+  `;
+}
+
+const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const dayEmojis = ['💪','🔥','⚡','💎','🎯','😎','🌿'];
+const workoutDays = [0,2,4]; // Mon, Wed, Fri
+
+function renderDays(){
+  const w = weeks[currentWeek];
+  let html = `<div class="info-pill" style="margin-bottom:14px">🔁 Lunch & dinner are the <strong>same meal each day</strong> of the week — batch prepped on Sunday. Only breakfasts rotate for variety.</div>`;
+
+  for(let d=0;d<7;d++){
+    const isWorkout = workoutDays.includes(d);
+    const bfIdx = d<5 ? (d%2===0?0:1) : 2;
+    const bf = w.breakfasts[bfIdx];
+    // pick a lunch/dinner only for weekdays; weekends lighter
+    const hasPrep = d<5;
+    const dayTotalKcal = bf.kcal + w.snack.kcal + (hasPrep ? w.lunch.macros.kcal + w.dinner.macros.kcal : Math.round((w.lunch.macros.kcal+w.dinner.macros.kcal)*0.9)) + (isWorkout?120:0);
+
+    html += `
+      <div class="day-card">
+        <div class="day-header-row" onclick="toggleDay(${d})">
+          <div class="day-emoji">${dayEmojis[d]}</div>
+          <div class="day-info">
+            <div class="day-name">${dayNames[d]}${isWorkout?' 🏋️':''}</div>
+            <div class="day-sub">${bf.name} · ${hasPrep?w.lunch.name.split(' ').slice(0,3).join(' ')+'...':'Flexible'}</div>
+          </div>
+          <div class="day-kcal">${dayTotalKcal} kcal</div>
+          <div class="chev" id="chev-${d}">▼</div>
+        </div>
+        <div class="day-detail" id="detail-${d}">
+          <div class="meal-row">
+            <div class="meal-type-label">🌅 Breakfast · ${bf.mins} min prep</div>
+            <div class="meal-name">${bf.name}</div>
+            <div class="meal-ing">${bf.ing}</div>
+            <div class="meal-macros"><span class="mm">${bf.kcal} kcal</span><span class="mm">${bf.prot}g protein</span><span class="fibre-badge">🌿 ${bf.fibre}g fibre</span></div>
+          </div>
+          ${hasPrep?`
+          <div class="meal-row">
+            <div class="meal-type-label">☀️ Lunch · Batch prepped Sunday</div>
+            <div class="meal-name">${w.lunch.name}</div>
+            <div class="meal-ing">${w.lunch.ing}</div>
+            <div class="meal-macros"><span class="mm">${w.lunch.macros.kcal} kcal</span><span class="mm">${w.lunch.macros.prot}g protein</span><span class="fibre-badge">🌿 ${w.lunch.macros.fibre}g fibre</span></div>
+          </div>
+          <div class="meal-row">
+            <div class="meal-type-label">🌙 Dinner · Batch prepped Sunday</div>
+            <div class="meal-name">${w.dinner.name}</div>
+            <div class="meal-ing">${w.dinner.ing}</div>
+            <div class="meal-macros"><span class="mm">${w.dinner.macros.kcal} kcal</span><span class="mm">${w.dinner.macros.prot}g protein</span><span class="fibre-badge">🌿 ${w.dinner.macros.fibre}g fibre</span></div>
+          </div>`:
+          `<div class="meal-row"><div class="meal-type-label">🍽️ Weekend Meals</div><div class="meal-name">Flexible — use any remaining meal prep or cook fresh</div></div>`}
+          <div class="meal-row">
+            <div class="meal-type-label">🍎 Snack</div>
+            <div class="meal-name">${w.snack.name}</div>
+            <div class="meal-ing">${w.snack.ing}</div>
+            <div class="meal-macros"><span class="mm">${w.snack.kcal} kcal</span><span class="fibre-badge">🌿 ${w.snack.fibre}g fibre</span></div>
+          </div>
+          ${isWorkout?`<div class="meal-row"><div class="meal-type-label" style="color:#4a90c4">🥤 Post-Workout Shake</div><div class="meal-name">Protein Shake (+120 kcal · +24g protein)</div></div>`:''}
+        </div>
+      </div>`;
+  }
+  document.getElementById('tab-days').innerHTML = html;
+}
+
+function toggleDay(d){
+  const detail = document.getElementById('detail-'+d);
+  const chev = document.getElementById('chev-'+d);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open',!isOpen);
+  chev.classList.toggle('open',!isOpen);
+}
+
+function renderPrep(){
+  const w = weeks[currentWeek];
+  document.getElementById('tab-prep').innerHTML = `
+    <div class="info-pill">🗓️ <strong>Every Sunday</strong> — Set aside 60 minutes to batch-prep all 5 lunches and 5 dinners. Store in airtight containers. Lasts Mon–Fri in the fridge.</div>
+
+    <div class="prep-timeline">
+      <div class="timeline-title">⏱️ Sunday Prep Timeline <span class="time-badge">60 min total</span></div>
+      ${w.prepTimeline.map(t=>`
+        <div class="tl-row">
+          <div class="tl-time">${t.time}</div>
+          <div class="tl-text">${t.task}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-title">🍱 What You're Making</div>
+    <div class="prep-card">
+      <h3>5× Lunch: ${w.lunch.name}</h3>
+      <div class="desc">${w.lunch.desc}</div>
+    </div>
+    <div class="prep-card">
+      <h3>5× Dinner: ${w.dinner.name}</h3>
+      <div class="desc">${w.dinner.desc}</div>
+    </div>
+
+    <div class="section-title">💡 Meal Prep Tips</div>
+    <div class="prep-card">
+      <div class="prep-steps">
+        <div class="step-title">Make it faster</div>
+        <div class="step"><div class="step-num">1</div><div>Use a rice cooker — set and forget while you cook protein.</div></div>
+        <div class="step"><div class="step-num">2</div><div>Buy pre-cut veg from Aldi when available to save chopping time.</div></div>
+        <div class="step"><div class="step-num">3</div><div>Use a large baking tray so protein + veg cook together.</div></div>
+        <div class="step"><div class="step-num">4</div><div>Label containers with Mon–Fri so you grab the right one each day.</div></div>
+        <div class="step"><div class="step-num">5</div><div>Freeze Friday's dinner on Sunday — it stays fresher.</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderGrocery(){
+  const w = weeks[currentWeek];
+  let totalItems = 0;
+  w.grocery.forEach(c=>totalItems+=c.items.length);
+
+  let checkedCount = Object.values(checked).filter(Boolean).length;
+
+  let html = `
+    <div class="g-summary">
+      <div class="prog-row">
+        <div><div class="g-title">🛒 Week ${w.week} — Aldi List</div><div class="g-hint">Tap items to check off as you shop</div></div>
+        <div style="text-align:right"><div class="prog-num" id="progNum">${checkedCount}/${totalItems}</div><div style="font-size:10px;color:#888">checked</div></div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="progBar" style="width:${totalItems>0?(checkedCount/totalItems*100):0}%"></div></div>
+    </div>`;
+
+  w.grocery.forEach((cat,ci)=>{
+    html+=`<div class="cat-label">${cat.name}</div><div class="cat-list" style="border:1px solid ${cat.border}">`;
+    cat.items.forEach((item,ii)=>{
+      const key=`w${currentWeek}-${ci}-${ii}`;
+      const isCO = item[2]==='—';
+      const isChecked=!!checked[key];
+      html+=`<div class="g-item" style="background:${isChecked?'#f0faf4':cat.color}" onclick="toggleCheck('${key}',this,${totalItems})">
+        <div class="cb ${isChecked?'checked':''}" id="cb-${key}">${isChecked?'✓':''}</div>
+        <div style="flex:1">
+          <div class="i-name ${isChecked?'checked':''}" id="nm-${key}">${item[0]}${isCO?' <span style="color:#aaa;font-size:10px">(carry over)</span>':''}</div>
+          <div class="i-qty">${item[1]}</div>
+        </div>
+        <div class="i-cost">${item[2]}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+
+  html+=`<div class="total-box"><div class="total-sub">Week ${w.week} Estimated Total</div><div class="total-amt">${w.totalCost}</div><div class="total-note">AUD · Carry-over pantry items reduce cost each week</div></div>`;
+
+  document.getElementById('tab-grocery').innerHTML = html;
+}
+
+function toggleCheck(key,row,total){
+  checked[key] = !checked[key];
+  const cb=document.getElementById('cb-'+key);
+  const nm=document.getElementById('nm-'+key);
+  if(checked[key]){cb.classList.add('checked');cb.textContent='✓';nm.classList.add('checked');row.style.background='#f0faf4';}
+  else{cb.classList.remove('checked');cb.textContent='';nm.classList.remove('checked');}
+  const done=Object.values(checked).filter(Boolean).length;
+  const pn=document.getElementById('progNum');
+  const pb=document.getElementById('progBar');
+  if(pn) pn.textContent=done+'/'+total;
+  if(pb) pb.style.width=(done/total*100)+'%';
+}
+
+renderAll();
+</script>
+</body>
+</html>
